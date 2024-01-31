@@ -1,0 +1,132 @@
+import tkinter as tk
+from tkinter import ttk
+import sys
+import json
+
+class Person:
+    def __init__(self, id, name, surname=None, birthday=None, parents=None, partners=None, children=None):
+        self.id = id
+        self.name = name
+        self.surname = surname
+        self.birthday = birthday
+        self.parents = parents or []
+        self.partners = partners or []
+        self.children = children or []
+
+    def __repr__(self):
+        return f"Person(id={self.id}, name={self.name}, surname={self.surname}, " \
+               f"birthday={self.birthday}, parents={self.parents}, partners={self.partners}, " \
+               f"children={self.children})"
+
+class peopleManagementGUI:
+    def __init__(self, people):
+        # Initialize the GUI with a root window
+        self.root = tk.Tk()
+        self.width = 1280
+        self.height = 720
+        self.root.title("People Management")  # Set the title of the window
+        self.root.geometry(f"{self.width}x{self.height}")  # Set the initial size of the window
+
+        # Buttons for adding a new person and saving changes
+        add_button = tk.Button(self.root, text="Yeni Kişi Ekle", command=lambda: self.open_person_details(-1))
+        add_button.grid(row=0, column=0, padx=10, pady=10, sticky='w')
+
+        save_button = tk.Button(self.root, text="Değişiklikleri Kaydet", command=self.save_changes)
+        save_button.grid(row=0, column=1, padx=10, pady=10, sticky='e')
+
+        # Treeview for displaying people
+        columns = ['ID', 'Ad', 'Soyad', 'Doğum tarihi', 'Anne-Baba', 'Eş', 'Çocukları', 'Komutlar']
+        self.tree = ttk.Treeview(self.root, columns=columns, show='headings')
+
+        for col in columns:
+            self.tree.heading(col, text=col)
+            self.tree.column(col, width=(self.width - 20)//len(columns))
+
+        self.tree.grid(row=1, column=0, columnspan=2, padx=10, pady=10, sticky='nsew')  # Set sticky to 'nsew'
+
+        # Scrollbar for the Treeview
+        scrollbar = ttk.Scrollbar(self.root, orient='vertical', command=self.tree.yview)
+        scrollbar.grid(row=1, column=2, sticky='ns')
+        self.tree.configure(yscrollcommand=scrollbar.set)
+
+        # Populate Treeview with people data
+        self.populate_treeview(people)
+
+    def populate_treeview(self, people):
+        for person in people:
+            parents_str = ', '.join(map(str, person.parents))
+            partners_str = ', '.join(person.partners)
+            children_str = ', '.join(map(str, person.children))
+
+            self.tree.insert('', 'end', values=(person.id, person.name, person.surname, person.birthday,
+                                                parents_str, partners_str, children_str, ''))
+
+    def save_changes(self):
+        # Method to save changes
+        # Implement this method based on your requirements
+        pass
+
+    def open_person_details(self, id):
+        self.person_details_window = tk.Toplevel(self.root)  
+        self.person_details_window.geometry("800x600")  
+
+        
+        self.person_details_window.protocol("WM_DELETE_WINDOW", self.exit_person_details)
+        self.person_details_window.grab_set()
+
+        fields = ['Ad', 'Soyad', 'Doğum tarihi', 'Anne-Baba', 'Eş']
+        for row, field in enumerate(fields):
+            label = tk.Label(self.person_details_window, text=field.capitalize())
+            label.grid(row=row, column=0, padx=10, pady=5, sticky='e')
+
+            value = getattr(person, field, "")
+            entry = tk.Entry(self.person_details_window)
+            entry.insert(0, str(value))
+            entry.grid(row=row, column=1, padx=10, pady=5, sticky='w')
+
+            if field in ['Anne-Baba', 'Eş']:
+                select_button = tk.Button(self.person_details_window, text="Kişi Seç", command=self.open_person_select)
+                select_button.grid(row=row, column=2, padx=10, pady=5, sticky='w')
+
+        # Add a button or any other widgets as needed
+        save_button = tk.Button(self.person_details_window, text="Save", command=lambda: self.save_person_details(person))
+        save_button.grid(row=row + 1, columnspan=2, pady=10)
+
+    def open_person_select(self):
+        # Method to open a window for the specified routing algorithm and input parameters
+        self.person_select_window = tk.Toplevel(self.root)  # Create a new top-level window for the algorithm
+        self.person_select_window.geometry("800x600")  # Set window dimensions
+
+        # Handle window closing event for the algorithm window
+        self.person_select_window.protocol("WM_DELETE_WINDOW", self.exit_person_select)
+
+        # Set focus on the algorithm window and prevent interaction with other windows until closed
+        self.person_select_window.grab_set()
+    
+    def exit_application(self):
+        self.root.destroy()  # Destroy the main application window
+        sys.exit()  # Exit the application
+
+    def exit_person_details(self):
+        self.person_details_window.grab_release()  # Release focus from the algorithm window
+        self.person_details_window.destroy()  # Destroy the algorithm window
+
+    def exit_person_select(self):
+        self.person_select_window.grab_release()
+        self.person_details_window.grab_set()
+        self.person_select_window.destroy()  # Destroy the metrics window
+
+
+# Check if this script is the main entry point of the program
+if __name__ == "__main__":
+    with open('people.json', 'r', encoding='utf-8') as file:
+        json_data = json.load(file)
+
+    people = [Person(**person_data) for person_data in json_data]
+
+    for person in people:
+        print(person)
+
+    app = peopleManagementGUI(people)
+
+    app.root.mainloop()
