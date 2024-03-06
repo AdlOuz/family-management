@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Family Tree CRUD</title>
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+  </head>
+  <body onload="fetchPeopleData()">
+    <h1>Yeni kişi ekle</h1>
+
+    <div id="personModal" class="modal">
+        <div class="modal-content">
+          <span class="close" onclick="closePersonModal()">&times;</span>
+          <h2>Kişi Seç</h2>
+          <input type="text" id="searchBar" placeholder="Kişileri arat..." oninput="filterPersons()">
+          <ul id="personList">
+            <!-- Parents will be displayed here -->
+          </ul>
+          <div class="input-container">
+			<label for="newPersonName">Sadece isim:</label>
+			<input type="text" id="newPersonName" class="input-field" placeholder="Sadece isim girin...">
+			<button id="newPersonButton" onclick="addSelectedPerson(-1)">Ekle</button>
+		  </div>
+          <div>
+            <h3>Seçili Kişiler:</h3>
+            <ul id="selectedPersonsList">
+              <!-- Selected parents will be displayed here -->
+            </ul>
+          </div>
+          <button id="confirmButton" onclick="confirmSelectedParents()">Onayla</button>
+        </div>
+      </div>
+      
+      <!-- Updated form with the Select Parents button -->
+      <form id="addPersonForm">
+        <input type="number" id="id" name="id" style="display: none;" readonly />
+
+        <label for="name">Ad:</label>
+        <input type="text" id="name" name="name" placeholder="" required />
+        <br />
+      
+        <label for="surname">Soyad:</label>
+        <input type="text" id="surname" name="surname" />
+        <br />
+      
+        <label for="birthday">Doğum tarihi:</label>
+        <input type="text" id="birthday" name="birthday" placeholder="Bu formatta giriniz: YYYY-AA-GG" pattern="\d{4}-\d{2}-\d{2}"/>
+        <br />
+      
+        <label for="parentsvis">Anne-Baba:</label>
+        <input type="text" id="parentsvis" name="parentsvis" placeholder="Anne/Babayi ekleyin" readonly />
+        <input type="text" id="parents" name="parents" style="display: none;" readonly />
+        <button type="button" onclick="openPersonSelectionModal('parents')">Kisi Sec</button>
+        <br />
+      
+        <label for="partnersvis">Eş-Eşler:</label>
+        <input type="text" id="partnersvis" name="partnersvis" placeholder="Eş/Eşleri ekleyin" readonly/>
+        <input type="text" id="partners" name="partners" style="display: none;" readonly/>
+        <button type="button" onclick="openPersonSelectionModal('partners')">Kisi Sec</button>
+        <br />
+
+        <label for="childrenvis" name="childrenvis">Çocukları:</label>
+        <input type="text" id="childrenvis" name="childrenvis" placeholder="Yeni kisi eklerken doldurmayin" readonly/>
+        <input type="text" id="children" name="children" style="display: none;" readonly/>
+        <button type="button" onclick="openPersonSelectionModal('children')">Kisi Sec</button>
+        <br />
+      
+        <button type="button" id="addButton" onclick="addPerson()">Kisiyi ekle</button>
+        <button type="button" id="discardButton" onclick="discardChanges()">Vazgec</button>
+
+      </form>
+
+    <hr />
+
+    <h2>Family Tree</h2>
+
+	<input type="text" id="searchInput" oninput="searchFunction()" placeholder="Kişileri filtrele">
+
+    <table border="1">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Ad</th>
+          <th>Soyad</th>
+          <th>Doğum tarihi</th>
+          <th>Anne-Baba</th>
+          <th>Eş-Eşler</th>
+          <th>Çocukları</th>
+          <th>Aksiyonlar</th>
+        </tr>
+      </thead>
+      <tbody id="familyTableBody">
+        <!-- Family tree data will be displayed here -->
+      </tbody>
+    </table>
+
+    <button class="save-button" onclick="saveChanges()">Değişikleri kaydet</button>
+
+    <script src="main.js"></script>
+  </body>
+</html>
